@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>8D-KW's Quiz | World Ocean Day</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: radial-gradient(circle at 0% 20%, #001d3d, #000722);
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(transparent 0px, transparent 98px, rgba(0, 180, 255, 0.03) 100px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(2px);
+            transition: transform 0.25s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: scale(1.01);
+            box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.35);
+        }
+
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            background: white;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+        }
+
+        .option-card:hover {
+            border-color: #2b6cb0;
+            background: #f0f9ff;
+            transform: translateX(6px);
+            box-shadow: 0 8px 20px -8px rgba(0, 119, 182, 0.3);
+        }
+
+        .selected-option {
+            background: linear-gradient(100deg, #e6f4ff 0%, #d0eaff 100%);
+            border-left: 6px solid #f59e0b;
+            transform: translateX(4px);
+        }
+
+        input[type="radio"] {
+            appearance: none;
+            width: 1.3rem;
+            height: 1.3rem;
+            border: 2px solid #94a3b8;
+            border-radius: 50%;
+            transition: all 0.1s ease;
+            position: relative;
+            cursor: pointer;
+            margin-right: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        input[type="radio"]:checked {
+            background-color: #f59e0b;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+        }
+
+        input[type="radio"]:checked::before {
+            content: '';
+            width: 0.6rem;
+            height: 0.6rem;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .short-answer-input {
+            transition: all 0.2s;
+            border: 2px solid #e2e8f0;
+            background: white;
+        }
+
+        .short-answer-input:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+            outline: none;
+        }
+
+        button {
+            transition: all 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        .feedback-correct {
+            background: linear-gradient(115deg, #c6f7d0 0%, #b2e6be 100%);
+            border-left: 8px solid #15803d;
+            color: #14532d;
+        }
+
+        .feedback-wrong {
+            background: linear-gradient(115deg, #ffe0e0 0%, #ffcdcd 100%);
+            border-left: 8px solid #b91c1c;
+            color: #7f1a1a;
+        }
+
+        .result-card {
+            animation: gentlePulse 0.4s ease forwards;
+        }
+
+        @keyframes gentlePulse {
+            0% { opacity: 0.6; transform: scale(0.98);}
+            100% { opacity: 1; transform: scale(1);}
+        }
+
+        .bubble-badge {
+            background: rgba(0,0,0,0.35);
+            backdrop-filter: blur(8px);
+            border-radius: 60px;
+            padding: 4px 14px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="font-inter relative flex items-center justify-center min-h-screen p-4">
+
+    <div class="fixed top-20 left-10 w-64 h-64 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style="animation-duration: 8s;"></div>
+    <div class="fixed bottom-10 right-10 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style="animation-delay: 2s; animation-duration: 10s;"></div>
+
+    <div class="relative z-10 w-full max-w-xl md:max-w-2xl transition-all duration-300">
+        <div class="glass-card bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-white/30">
+            <div class="relative px-6 pt-6 pb-2 bg-gradient-to-r from-cyan-900/10 to-blue-900/10">
+                <div class="flex justify-between items-center flex-wrap gap-2">
+                    <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#005c4a] to-[#a13e9e] drop-shadow-sm">
+                        8KW's Quiz
+                    </h1>
+                    <div class="bubble-badge text-sm font-bold text-white bg-amber-700/90 px-3 py-1 rounded-full shadow-md">
+                        Monday 8th June 2026
+                    </div>
+                </div>
+                <div class="mt-4 mb-2">
+                    <div class="flex justify-between text-xs font-medium text-gray-700 mb-1">
+                        <span>Progress</span>
+                        <span id="progress-counter" class="font-bold">0 / 0</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden shadow-inner">
+                        <div id="progress-fill" class="bg-gradient-to-r from-emerald-500 to-amber-500 h-2.5 rounded-full transition-all duration-500 ease-out w-0"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 md:p-8 pt-4">
+                <div id="quiz" class="space-y-5 min-h-[280px]">
+                    <!-- dynamic content -->
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 mt-8">
+                    <button id="submit-btn" class="w-full sm:w-auto flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2 text-lg">
+                        Submit Answer
+                    </button>
+                    <button id="next-btn" class="w-full sm:w-auto flex-1 hidden bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all items-center justify-center gap-2 text-lg">
+                        Next Question
+                    </button>
+                </div>
+
+                <div id="feedback" class="hidden mt-6 p-4 rounded-xl font-semibold text-md md:text-lg transition-all shadow-md"></div>
+                <div id="result" class="hidden mt-6 p-6 rounded-2xl text-center shadow-xl result-card"></div>
+
+                <div class="text-center text-gray-400 text-xs mt-8 border-t border-gray-200 pt-5">
+                    Made by Fionn and Mustafa
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz data - clean, no emojis
+        const quizQuestions = [
+            {
+                question: "Approximately what percentage of human-induced carbon emissions do oceans absorb?",
+                type: 'multiple_choice',
+                options: ["Less than 5%", "About 10–15%", "Over 25%", "Over 50%"],
+                answer: "Over 25%"
+            },
+            {
+                question: "True or false: White sand on Caribbean beaches is actually made from parrotfish poop.",
+                type: 'true_false',
+                answer: "True"
+            },
+            {
+                question: "What is the name for the intense fear of the sea or deep, dark water?",
+                type: 'short_answer',
+                answer: "Thalassophobia"
+            },
+            {
+                question: "Which fish has a head covered by a transparent, fluid-filled shield made of clear tissue?",
+                type: 'short_answer',
+                answer: "Barreleye"
+            },
+            {
+                question: "How many known species are estimated to live in the ocean?",
+                type: 'multiple_choice',
+                options: ["About 50,000", "Over 240,000", "Over 1 million", "About 10,000"],
+                answer: "Over 240,000"
+            },
+            {
+                question: "What is the official date of World Ocean Day?",
+                type: 'short_answer',
+                answer: "June 8"
+            },
+            {
+                question: "Name the largest ocean on Earth.",
+                type: 'short_answer',
+                answer: "Pacific Ocean"
+            }
+        ];
+
+        // State variables
+        let currentIndex = 0;
+        let userScore = 0;
+        let shuffledPool = [];
+        let answered = false;
+
+        // DOM elements
+        const quizContainer = document.getElementById('quiz');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const feedbackDiv = document.getElementById('feedback');
+        const resultDiv = document.getElementById('result');
+        const progressFill = document.getElementById('progress-fill');
+        const progressCounter = document.getElementById('progress-counter');
+
+        // Fisher-Yates shuffle
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function updateProgress() {
+            const total = shuffledPool.length;
+            let completed = currentIndex;
+            if (answered && currentIndex < total) {
+                completed = currentIndex + 1;
+            } else if (!answered) {
+                completed = currentIndex;
+            }
+            const percent = (completed / total) * 100;
+            progressFill.style.width = `${percent}%`;
+            progressCounter.innerText = `${completed}/${total}`;
+        }
+
+        function startGame() {
+            shuffledPool = shuffleArray([...quizQuestions]);
+            currentIndex = 0;
+            userScore = 0;
+            answered = false;
+            submitBtn.classList.remove('hidden');
+            nextBtn.classList.add('hidden');
+            feedbackDiv.classList.add('hidden');
+            resultDiv.classList.add('hidden');
+            feedbackDiv.innerHTML = '';
+            resultDiv.innerHTML = '';
+            resultDiv.className = 'hidden mt-6 p-6 rounded-2xl text-center shadow-xl result-card';
+            updateProgress();
+            renderCurrentQuestion();
+        }
+
+        function renderCurrentQuestion() {
+            if (currentIndex >= shuffledPool.length) {
+                displayFinalResults();
+                return;
+            }
+
+            answered = false;
+            submitBtn.classList.remove('hidden');
+            nextBtn.classList.add('hidden');
+            feedbackDiv.classList.add('hidden');
+            feedbackDiv.className = 'hidden mt-6 p-4 rounded-xl font-semibold text-md md:text-lg shadow-md';
+
+            const q = shuffledPool[currentIndex];
+            let html = `
+                <div>
+                    <div class="flex items-start gap-3 mb-4">
+                        <span class="bg-amber-100 text-amber-800 rounded-full w-7 h-7 flex items-center justify-center font-bold text-sm shadow-sm">${currentIndex+1}</span>
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 leading-tight">${q.question}</h3>
+                    </div>
+            `;
+
+            if (q.type === 'multiple_choice') {
+                html += `<div class="options-container space-y-3 mt-2" id="options-wrapper">`;
+                q.options.forEach((opt) => {
+                    html += `
+                        <label class="option-card flex items-center p-3 rounded-xl transition-all border bg-white shadow-sm">
+                            <input type="radio" name="quizOption" value="${opt.replace(/"/g, '&quot;')}" class="radio-custom">
+                            <span class="text-gray-800 font-medium">${opt}</span>
+                        </label>
+                    `;
+                });
+                html += `</div>`;
+            } 
+            else if (q.type === 'true_false') {
+                html += `<div class="options-container space-y-3 mt-2" id="options-wrapper">
+                            <label class="option-card flex items-center p-3 rounded-xl transition-all border bg-white">
+                                <input type="radio" name="quizOption" value="True" class="radio-custom">
+                                <span class="font-medium">True</span>
+                            </label>
+                            <label class="option-card flex items-center p-3 rounded-xl transition-all border bg-white">
+                                <input type="radio" name="quizOption" value="False" class="radio-custom">
+                                <span class="font-medium">False</span>
+                            </label>
+                        </div>`;
+            } 
+            else if (q.type === 'short_answer') {
+                html += `
+                    <div class="mt-3">
+                        <input type="text" id="short-answer-field" class="short-answer-input w-full p-4 rounded-xl border-2 border-gray-200 focus:border-amber-400 text-gray-800 text-md" placeholder="Type your answer here" autocomplete="off">
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+            quizContainer.innerHTML = html;
+
+            // Attach radio highlight effect
+            if (q.type !== 'short_answer') {
+                const labels = document.querySelectorAll('.option-card');
+                labels.forEach(label => {
+                    const radio = label.querySelector('input[type="radio"]');
+                    radio.addEventListener('change', () => {
+                        labels.forEach(lbl => lbl.classList.remove('selected-option', 'bg-gradient-to-r', 'from-blue-50', 'to-cyan-50'));
+                        if (radio.checked) {
+                            label.classList.add('selected-option', 'bg-gradient-to-r', 'from-blue-50', 'to-cyan-50');
+                        }
+                    });
+                });
+            }
+
+            // Short answer: allow Enter key to submit
+            const shortInput = document.getElementById('short-answer-field');
+            if (shortInput) {
+                shortInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !answered) {
+                        e.preventDefault();
+                        checkAnswer();
+                    }
+                });
+            }
+            updateProgress();
+        }
+
+        function checkAnswer() {
+            if (answered) {
+                feedbackDiv.classList.remove('hidden');
+                feedbackDiv.innerHTML = `You already answered this question. Click 'Next Question' to continue.`;
+                feedbackDiv.className = 'feedback-wrong mt-6 p-4 rounded-xl font-semibold shadow-md';
+                return;
+            }
+
+            const q = shuffledPool[currentIndex];
+            let userAnswerRaw = null;
+            let isCorrect = false;
+
+            if (q.type === 'multiple_choice' || q.type === 'true_false') {
+                const selectedRadio = document.querySelector('input[name="quizOption"]:checked');
+                if (!selectedRadio) {
+                    feedbackDiv.classList.remove('hidden');
+                    feedbackDiv.innerHTML = `Please select an answer before submitting.`;
+                    feedbackDiv.className = 'feedback-wrong mt-6 p-4 rounded-xl font-semibold shadow-md';
+                    return;
+                }
+                userAnswerRaw = selectedRadio.value;
+            } 
+            else if (q.type === 'short_answer') {
+                const inputField = document.getElementById('short-answer-field');
+                if (!inputField || inputField.value.trim() === '') {
+                    feedbackDiv.classList.remove('hidden');
+                    feedbackDiv.innerHTML = `Please type your answer before submitting.`;
+                    feedbackDiv.className = 'feedback-wrong mt-6 p-4 rounded-xl font-semibold shadow-md';
+                    return;
+                }
+                userAnswerRaw = inputField.value.trim();
+            }
+
+            let normalizedUser = userAnswerRaw.trim().toLowerCase();
+            let normalizedCorrect = q.answer.trim().toLowerCase();
+
+            // Flexible matching for short answers with common variations
+            if (q.type === 'short_answer') {
+                if (normalizedCorrect === "pacific ocean" && (normalizedUser === "pacific" || normalizedUser === "the pacific ocean")) {
+                    isCorrect = true;
+                }
+                else if (normalizedCorrect === "thalassophobia" && (normalizedUser === "thalassophobia" || normalizedUser === "thalassaphobia")) {
+                    isCorrect = true;
+                }
+                else if (normalizedCorrect === "barreleye" && (normalizedUser === "barreleye fish" || normalizedUser === "barreleye")) {
+                    isCorrect = true;
+                }
+                else if (normalizedCorrect === "june 8" && (normalizedUser === "june 8th" || normalizedUser === "june 8")) {
+                    isCorrect = true;
+                }
+                else {
+                    isCorrect = (normalizedUser === normalizedCorrect);
+                }
+            } else {
+                isCorrect = (normalizedUser === normalizedCorrect);
+            }
+
+            if (isCorrect) {
+                userScore++;
+            }
+
+            answered = true;
+            
+            // Disable all inputs after answering
+            const allRadios = document.querySelectorAll('input[type="radio"]');
+            allRadios.forEach(radio => radio.disabled = true);
+            const shortAnsField = document.getElementById('short-answer-field');
+            if (shortAnsField) shortAnsField.disabled = true;
+            
+            // Simplified feedback: just Correct! :D or Incorrect with answer
+            if (isCorrect) {
+                feedbackDiv.innerHTML = `Correct! :D`;
+                feedbackDiv.className = 'feedback-correct mt-6 p-4 rounded-xl font-semibold shadow-md';
+            } else {
+                feedbackDiv.innerHTML = `Incorrect. The correct answer is: ${q.answer}`;
+                feedbackDiv.className = 'feedback-wrong mt-6 p-4 rounded-xl font-semibold shadow-md';
+            }
+            feedbackDiv.classList.remove('hidden');
+
+            submitBtn.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+            updateProgress();
+        }
+
+        function nextQuestion() {
+            if (!answered && currentIndex < shuffledPool.length) {
+                feedbackDiv.classList.remove('hidden');
+                feedbackDiv.innerHTML = `Please submit an answer before moving to the next question.`;
+                feedbackDiv.className = 'feedback-wrong mt-6 p-4 rounded-xl font-semibold shadow-md';
+                return;
+            }
+            currentIndex++;
+            if (currentIndex < shuffledPool.length) {
+                renderCurrentQuestion();
+            } else {
+                displayFinalResults();
+            }
+        }
+
+        function displayFinalResults() {
+            quizContainer.innerHTML = `<div class="text-center py-6 text-gray-700">Quiz completed</div>`;
+            submitBtn.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            feedbackDiv.classList.add('hidden');
+            
+            const totalQuestions = shuffledPool.length;
+            const score = userScore;
+            
+            // Original rank system preserved exactly as requested
+            let resultText = `<p class="mb-4">You scored ${score} out of ${totalQuestions}.</p>`;
+            
+            if (score === totalQuestions) {
+                resultText += "<p class='text-green-600 font-semibold'>Excellent! You got everything correct! Rank: Shark</p>";
+            } else if (score >= totalQuestions * 0.7) {
+                resultText += "<p class='text-blue-600 font-semibold'>Well done! You have a good understanding of the sea. Rank: Clownfish</p>";
+            } else {
+                resultText += "<p class='text-red-600 font-semibold'>There's room for improvement. Rank: Seahorse</p>";
+            }
+            
+            // Add restart button
+            resultText += `<button id="restart-quiz-final" class="mt-6 px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all">Restart Quiz</button>`;
+            
+            resultDiv.innerHTML = resultText;
+            resultDiv.classList.remove('hidden');
+            resultDiv.className = `mt-6 p-6 rounded-2xl text-center shadow-xl result-card bg-white/90`;
+            progressFill.style.width = `100%`;
+            progressCounter.innerText = `${totalQuestions}/${totalQuestions}`;
+            
+            const restartBtn = document.getElementById('restart-quiz-final');
+            if (restartBtn) {
+                restartBtn.addEventListener('click', () => {
+                    startGame();
+                });
+            }
+        }
+
+        submitBtn.addEventListener('click', checkAnswer);
+        nextBtn.addEventListener('click', nextQuestion);
+        
+        startGame();
+    </script>
+</body>
+</html>
+
